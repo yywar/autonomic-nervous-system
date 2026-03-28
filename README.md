@@ -1,93 +1,95 @@
 # Autonomic Nervous System
 
-**Deterministic quality enforcement for Claude Code.**
+> **[English](README.en.md)** | Francais
 
-Your AI codes. This system makes sure it codes *right*.
+**Enforcement deterministe de la qualite pour Claude Code.**
+
+Ton IA code. Ce systeme garantit qu'elle code *bien*.
 
 ---
 
-Every time you ask Claude Code to fix a bug, build a feature, or refactor code, the same question applies: **did it actually follow the process?** Did it run tests? Did it check for security issues? Did it think before coding?
+Chaque fois que tu demandes a Claude Code de corriger un bug, construire une feature ou refactoriser du code, la meme question se pose : **est-ce qu'il a vraiment suivi le processus ?** A-t-il lance les tests ? Verifie la securite ? Reflechi avant de coder ?
 
-The Autonomic Nervous System answers that question with hooks, not hope. It wraps Claude Code in a deterministic enforcement layer that **forces** quality on every single request. No discipline required. No prompts to remember. The system does it for you.
+L'Autonomic Nervous System repond a cette question avec des hooks, pas de l'espoir. Il enveloppe Claude Code dans une couche d'enforcement deterministe qui **force** la qualite sur chaque requete. Aucune discipline requise. Aucun prompt a memoriser. Le systeme le fait pour toi.
 
-## The Problem
+## Le Probleme
 
-Claude Code is powerful. But power without guardrails produces inconsistent results:
+Claude Code est puissant. Mais la puissance sans garde-fous produit des resultats inconsistants :
 
-- Tests skipped "because the change is simple"
-- Security vulnerabilities introduced silently
-- Fixes applied without understanding the root cause
-- Sessions end with no memory of what was learned
-- Refactoring that quietly changes behavior
-- Secrets accidentally hardcoded
+- Tests sautes "parce que le changement est simple"
+- Vulnerabilites de securite introduites silencieusement
+- Correctifs appliques sans comprendre la cause racine
+- Sessions qui se terminent sans memoire de ce qui a ete appris
+- Refactoring qui change discretement le comportement
+- Secrets codes en dur par accident
 
-You can write better prompts. You can add instructions to CLAUDE.md. But instructions are *suggestions* — the model can and will ignore them under context pressure.
+On peut ecrire de meilleurs prompts. On peut ajouter des instructions dans CLAUDE.md. Mais les instructions sont des *suggestions* — le modele peut et va les ignorer sous pression de contexte.
 
-## The Solution
+## La Solution
 
-Hooks are not suggestions. **Hooks are deterministic.** They run every time, on every request, with zero exceptions.
+Les hooks ne sont pas des suggestions. **Les hooks sont deterministes.** Ils s'executent a chaque fois, sur chaque requete, sans exception.
 
-The Autonomic Nervous System deploys 6 layers of enforcement around Claude Code:
-
-<p align="center">
-  <img src="docs/images/architecture.png" alt="6-layer enforcement architecture" width="700"/>
-</p>
-
-### What each layer does
-
-| Layer | Hook | Role | Can block? |
-|-------|------|------|:---:|
-| 1 | `CLAUDE.md` | Project conventions, stack, security rules | No |
-| 2 | `SessionStart` | Reloads project memory (state, backlog, decisions, conventions) | No |
-| 3 | **`UserPromptSubmit`** | **THE GUARDIAN** — classifies every prompt (fix/feature/refactor/question) and injects the mandatory quality pipeline | No |
-| 4 | `PreToolUse` | Blocks dangerous patterns: hardcoded secrets, `.env` edits, force push, SQL injection | **Yes** |
-| 5 | `PostToolUse` | Auto-format, auto-lint, security scan, change tracking | No |
-| 6 | **`Stop`** | **THE LOCK** — blocks session end if tests missing, proofs unsatisfied, or capitalization skipped | **Yes** |
-
-### Pipeline classification
-
-The Guardian analyzes every prompt and injects the right pipeline:
-
-| You write | Detected as | Injected pipeline |
-|-----------|------------|-------------------|
-| "fix the login bug" | **FIX** | Root cause analysis (systematic-debugging) + TDD (test before fix) + proof verification |
-| "add Stripe payments" | **FEATURE** | Technical challenge (is this needed? simpler approach? risks?) + full quality pipeline + code review |
-| "refactor the auth module" | **REFACTOR** | Challenge (is this justified now?) + zero behavior change rule + before/after test parity |
-| "how does the router work?" | **QUESTION** | Direct answer, no pipeline overhead |
+L'Autonomic Nervous System deploie 6 couches d'enforcement autour de Claude Code :
 
 <p align="center">
-  <img src="docs/images/classification.png" alt="Pipeline classification" width="700"/>
+  <img src="docs/images/architecture.png" alt="Architecture d'enforcement a 6 couches" width="700"/>
 </p>
 
-### Technical challenge (built-in)
+### Ce que fait chaque couche
 
-Before any feature or refactoring, the system forces three questions:
+| Couche | Hook | Role | Bloque ? |
+|--------|------|------|:---:|
+| 1 | `CLAUDE.md` | Conventions du projet, stack, regles de securite | Non |
+| 2 | `SessionStart` | Recharge la memoire projet (etat, backlog, decisions, conventions) | Non |
+| 3 | **`UserPromptSubmit`** | **LE GARDIEN** — classifie chaque prompt (fix/feature/refactor/question) et injecte le pipeline qualite obligatoire | Non |
+| 4 | `PreToolUse` | Bloque les patterns dangereux : secrets en dur, edits `.env`, force push, injection SQL | **Oui** |
+| 5 | `PostToolUse` | Auto-format, auto-lint, scan securite, suivi des modifications | Non |
+| 6 | **`Stop`** | **LE VERROU** — bloque la fin de session si tests manquants, preuves non satisfaites, ou capitalisation oubliee | **Oui** |
 
-1. **Is this actually necessary**, or does an existing mechanism already solve it?
-2. **What is the simplest approach** that addresses the need?
-3. **What is the main risk** (security, tech debt, complexity)?
+### Classification des pipelines
 
-If any answer reveals a problem, the AI flags it before writing a single line of code.
+Le Gardien analyse chaque prompt et injecte le bon pipeline :
 
-### Automatic memory
-
-The system maintains project memory across sessions:
+| Tu ecris | Detecte comme | Pipeline injecte |
+|----------|--------------|------------------|
+| "fix le bug de login" | **FIX** | Analyse de cause racine (systematic-debugging) + TDD (test avant fix) + verification des preuves |
+| "ajoute le paiement Stripe" | **FEATURE** | Challenge technique (est-ce necessaire ? approche plus simple ? risques ?) + pipeline qualite complet + code review |
+| "refactor le module auth" | **REFACTOR** | Challenge (est-ce justifie maintenant ?) + regle zero changement de comportement + parite des tests avant/apres |
+| "comment marche le routeur ?" | **QUESTION** | Reponse directe, pas de pipeline |
 
 <p align="center">
-  <img src="docs/images/memory.png" alt="Automatic memory cycle" width="700"/>
+  <img src="docs/images/classification.png" alt="Classification des pipelines" width="700"/>
 </p>
 
-No more "starting from zero" on every session.
+### Challenge technique (integre)
+
+Avant chaque feature ou refactoring, le systeme force trois questions :
+
+1. **Est-ce vraiment necessaire**, ou un mecanisme existant resout deja le besoin ?
+2. **Quelle est l'approche la plus simple** qui repond au besoin ?
+3. **Quel est le risque principal** (securite, dette technique, complexite) ?
+
+Si une reponse revele un probleme, l'IA le signale avant d'ecrire une seule ligne de code.
+
+### Memoire automatique
+
+Le systeme maintient la memoire du projet entre les sessions :
+
+<p align="center">
+  <img src="docs/images/memory.png" alt="Cycle de memoire automatique" width="700"/>
+</p>
+
+Fini le "repartir de zero" a chaque session.
 
 ## Installation
 
-### Prerequisites
+### Prerequis
 
-- [Claude Code](https://claude.ai/code) installed
-- `jq` installed (`apt install jq` / `brew install jq`)
-- [Superpowers plugin](https://github.com/anthropics/claude-plugins-official) installed
+- [Claude Code](https://claude.ai/code) installe
+- `python3` installe
+- [Plugin Superpowers](https://github.com/anthropics/claude-plugins-official) (recommande)
 
-### One command
+### Une commande
 
 ```bash
 git clone https://github.com/yywar/autonomic-nervous-system.git
@@ -95,117 +97,122 @@ cd autonomic-nervous-system
 bash install.sh
 ```
 
-The installer:
-- Backs up your existing `settings.json` before any modification
-- Merges hooks without overwriting plugin hooks
-- Adds security deny rules
-- Disables legacy conflicting skills
-- Installs the project deployment template
+L'installeur :
+- Sauvegarde votre `settings.json` existant avant toute modification
+- Installe 11 skills (jeyant v2 + checkpoint + rodin)
+- Active 13 plugins automatiquement
+- Fusionne les hooks sans ecraser ceux des plugins
+- Ajoute les deny rules de securite
+- Desactive les skills legacy conflictuelles
+- Installe le template de deploiement projet
 
-### Then install the recommended plugins
+Les plugins se telechargeront automatiquement au prochain lancement de Claude Code.
 
-Inside Claude Code:
-
-```
-/plugin install security-guidance@claude-plugins-official
-/plugin install hookify@claude-plugins-official
-/plugin install typescript-lsp@claude-plugins-official
-/plugin install commit-commands@claude-plugins-official
-/plugin install pr-review-toolkit@claude-plugins-official
-/plugin install playwright@claude-plugins-official
-/plugin install github@claude-plugins-official
-```
-
-### Deploy on any project
+### Deployer sur un projet
 
 ```bash
-bash ~/.claude/project-template/deploy-to-project.sh /path/to/your/project
+bash ~/.claude/project-template/deploy-to-project.sh /chemin/vers/projet
 ```
 
-This creates:
-- `.claude/agents/` — 3 specialized review agents
-- `.claude/hookify.*.local.md` — 4 security rules
-- `CLAUDE.md` — template to customize with your stack
-- `docs/` — directory structure for project memory
+Cela cree :
+- `.claude/agents/` — 3 agents de review specialises
+- `.claude/hookify.*.local.md` — 4 regles de securite
+- `CLAUDE.md` — template a personnaliser avec votre stack
+- `docs/` — structure de repertoire pour la memoire projet
 
-## What's included
+## Contenu
 
-### Hooks (global, active on all projects)
+### Hooks (globaux, actifs sur tous les projets)
 
-| File | Event | Role |
-|------|-------|------|
-| `enforce-pipeline.sh` | UserPromptSubmit | Classifies requests, injects mandatory pipeline |
-| `session-context.sh` | SessionStart | Reloads project memory + system rules |
-| `verify-completion.sh` | Stop | Blocks if tests/proofs missing, forces capitalization |
-| `auto-quality.sh` | PostToolUse | Auto-format, lint, security scan after every edit |
-| `track-changes.sh` | PostToolUse | Tracks modified files for capitalization decisions |
+| Fichier | Evenement | Role |
+|---------|-----------|------|
+| `enforce-pipeline.sh` | UserPromptSubmit | Classifie les requetes, injecte le pipeline obligatoire |
+| `session-context.sh` | SessionStart | Recharge la memoire projet + regles systeme |
+| `verify-completion.sh` | Stop | Bloque si tests/preuves manquants, force la capitalisation |
+| `auto-quality.sh` | PostToolUse | Auto-format, lint, scan securite apres chaque edit |
+| `track-changes.sh` | PostToolUse | Suit les fichiers modifies pour les decisions de capitalisation |
 
-### Agents (per-project)
+### Skills (11 installees dans ~/.claude/skills/)
+
+| Skill | Role |
+|-------|------|
+| **jeyant** | Pilote principal — orchestre le pipeline complet selon le tier |
+| **jeyant-cadrage** | Qualifie et formalise chaque demande en contrat testable |
+| **jeyant-brainstorm** | Exploration profonde en 7 phases (3+ approches, simulation agentic, modes d'echec) |
+| **jeyant-dev-guard** | Garde-fou pre-implementation (pre-flight, conventions, frontieres de module) |
+| **jeyant-plan** | Decoupe en micro-unites testables avec dependances |
+| **jeyant-preuves** | Systeme de preuve en deux phases (contrat avant code, verification apres) |
+| **jeyant-revue-adverse** | Contre-expertise severe (scope design + scope code) |
+| **jeyant-capitalisation** | Capture les lecons apprises, enrichit les conventions |
+| **jeyant-createur-competence** | Fabrique de nouvelles skills robustes et testables |
+| **checkpoint** | Automatise les commits propres en Conventional Commits |
+| **rodin** | Interlocuteur socratique — anti-chambre d'echo |
+
+### Agents (par projet)
 
 | Agent | Focus |
 |-------|-------|
-| `security-reviewer.md` | OWASP Top 10, injection, XSS, auth flaws, secrets detection |
-| `a11y-auditor.md` | WCAG 2.2 Level AA compliance |
-| `perf-analyst.md` | Bundle size, rendering, network, Core Web Vitals |
+| `security-reviewer.md` | OWASP Top 10, injection, XSS, failles d'auth, detection de secrets |
+| `a11y-auditor.md` | Conformite WCAG 2.2 Niveau AA |
+| `perf-analyst.md` | Taille du bundle, rendu, reseau, Core Web Vitals |
 
-### Security rules (per-project, hookify format)
+### Regles de securite (par projet, format hookify)
 
-| Rule | Action |
-|------|--------|
-| `block-secrets` | **Blocks** hardcoded API keys, tokens, passwords |
-| `block-env-commit` | **Blocks** any modification to `.env` files |
-| `warn-sql-injection` | **Warns** on string concatenation in SQL queries |
-| `block-force-push` | **Blocks** `git push --force` |
+| Regle | Action |
+|-------|--------|
+| `block-secrets` | **Bloque** les cles API, tokens, mots de passe codes en dur |
+| `block-env-commit` | **Bloque** toute modification des fichiers `.env` |
+| `warn-sql-injection` | **Avertit** sur la concatenation de chaines dans les requetes SQL |
+| `block-force-push` | **Bloque** `git push --force` |
 
-### Global deny rules (settings.json)
+### Deny rules globales (settings.json)
 
-- `rm -rf /` and `rm -rf ~` blocked
-- Force push to main/master blocked
-- Read access to `~/.ssh/`, `~/.aws/`, `~/.gnupg/` blocked
+- `rm -rf /` et `rm -rf ~` bloques
+- Force push sur main/master bloque
+- Acces en lecture a `~/.ssh/`, `~/.aws/`, `~/.gnupg/` bloque
 
-## Compatibility
+## Compatibilite
 
-Designed to work with:
-- **[Superpowers](https://github.com/obra/superpowers)** — TDD, systematic debugging, code review, plan execution
-- **[Jeyant](https://github.com/yywar)** — Quality pipeline with tiered routing, proof contracts, adversarial review, capitalization
-- **[Feature Dev](https://github.com/anthropics/claude-plugins-official)** — Codebase exploration, architecture design, code review agents
+Concu pour fonctionner avec :
+- **[Superpowers](https://github.com/obra/superpowers)** — TDD, debugging systematique, code review, execution de plans
+- **[Feature Dev](https://github.com/anthropics/claude-plugins-official)** — Exploration de codebase, design d'architecture, agents de review
 
-The system complements these tools by adding the enforcement layer they lack. Skills define *what* quality means. The Autonomic Nervous System *guarantees* it happens.
+Le systeme complete ces outils en ajoutant la couche d'enforcement qu'ils n'ont pas. Les skills definissent *ce que* la qualite signifie. L'Autonomic Nervous System *garantit* qu'elle se produit.
 
-## Uninstall
+## Desinstallation
 
 ```bash
-# Restore settings.json
+# Restaurer settings.json
 cp ~/.claude/settings.json.bak ~/.claude/settings.json
 
-# Remove hooks
+# Supprimer les hooks
 rm ~/.claude/hooks/enforce-pipeline.sh
 rm ~/.claude/hooks/session-context.sh
 rm ~/.claude/hooks/verify-completion.sh
 rm ~/.claude/hooks/auto-quality.sh
 rm ~/.claude/hooks/track-changes.sh
 
-# Re-enable legacy skills (if desired)
+# Reactiver les skills legacy (si voulu)
 mv ~/.claude/skills/brainstorming/SKILL.md.disabled ~/.claude/skills/brainstorming/SKILL.md
 mv ~/.claude/skills/planification/SKILL.md.disabled ~/.claude/skills/planification/SKILL.md
 ```
 
-## Architecture overview
+## Vue d'ensemble de l'architecture
 
 <p align="center">
-  <img src="docs/images/overview.png" alt="Architecture overview" width="700"/>
+  <img src="docs/images/overview.png" alt="Vue d'ensemble de l'architecture" width="700"/>
 </p>
 
-## Philosophy
+## Philosophie
 
-> Instructions are wishes. Hooks are guarantees.
+> Les instructions sont des voeux. Les hooks sont des garanties.
 
-The best process is the one you can't skip. This system was born from a simple observation: AI coding assistants produce their best work when they follow a structured process — and their worst work when they don't. Instead of relying on the model's judgment to follow the process, we made the process inescapable.
+Le meilleur processus est celui qu'on ne peut pas sauter. Ce systeme est ne d'une observation simple : les assistants de code IA produisent leur meilleur travail quand ils suivent un processus structure — et leur pire travail quand ils ne le font pas. Au lieu de compter sur le jugement du modele pour suivre le processus, on a rendu le processus incontournable.
 
-## Author
+## Auteur
 
 **Yann LOMBRET** — [@yywar](https://github.com/yywar)
 
-## License
+## Licence
 
 MIT
