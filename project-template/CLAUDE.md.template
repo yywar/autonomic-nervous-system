@@ -1,0 +1,54 @@
+# CLAUDE.md — {{NOM_PROJET}}
+
+## Stack
+
+- Framework : {{FRAMEWORK}}
+- Backend : {{BACKEND}}
+- Database : {{DATABASE}}
+- Styling : {{STYLING}}
+- Tests : {{TESTS}}
+- Deploy : {{DEPLOY}}
+
+## Commandes
+
+- `{{CMD_DEV}}` — serveur local
+- `{{CMD_BUILD}}` — build production
+- `{{CMD_TEST}}` — tests unitaires
+- `{{CMD_LINT}}` — lint + format check
+
+## Conventions
+
+- {{CONVENTION_1}}
+- {{CONVENTION_2}}
+- {{CONVENTION_3}}
+
+## Structure
+
+```
+src/
+  components/   — Composants UI reutilisables
+  app/          — Pages et routes
+  lib/          — Utilitaires et helpers
+  hooks/        — Hooks custom
+  types/        — Types TypeScript partages
+  actions/      — Server Actions / API handlers
+```
+
+## Securite — regles non-negociables
+
+- JAMAIS de secrets en dur — variables d'environnement uniquement
+- JAMAIS de `eval()`, `new Function()`, ou `innerHTML` avec contenu utilisateur
+- TOUJOURS parametrer les requetes SQL/DB — jamais de concatenation
+- TOUJOURS valider et sanitiser les inputs utilisateur cote serveur
+- TOUJOURS echapper les outputs HTML
+- Rate limiting sur tous les endpoints publics
+
+## Pipeline de qualite
+
+Ce projet utilise le Systeme Nerveux Autonome :
+- Le hook UserPromptSubmit injecte le pipeline obligatoire selon le type de demande
+- Le hook Stop verifie que les preuves sont satisfaites
+- Les hooks PreToolUse bloquent les patterns dangereux
+- Les hooks PostToolUse appliquent format + lint automatiques
+
+Pour toute tache de dev : `/jeyant "description"`
