@@ -11,6 +11,10 @@
 
 set -euo pipefail
 
+# Identifiant de session pour le fichier marqueur
+SESSION_ID="${CLAUDE_SESSION_ID:-default}"
+PIPELINE_MARKER="/tmp/claude-pipeline-active-${SESSION_ID}"
+
 # Lire l'input depuis stdin (JSON avec user_prompt)
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.user_prompt // empty' 2>/dev/null)
@@ -46,6 +50,8 @@ fi
 # BYPASS : confirmations courtes
 # ─────────────────────────────────────────────
 if echo "$PROMPT_LOWER" | grep -qE '^\s*(oui|non|ok|yes|no|continue|go|d.accord|parfait|merci|valide|approved|confirm)'; then
+  # Confirmation = le pipeline est deja actif, maintenir le marqueur
+  [ -f "$PIPELINE_MARKER" ] || true
   exit 0
 fi
 
@@ -67,6 +73,7 @@ RAPPELS :
 - Le test doit ECHOUER avant le fix et REUSSIR apres
 - Verifie que le fix n'introduit pas de vulnerabilite
 EOF
+  touch "$PIPELINE_MARKER"
   exit 0
 fi
 
@@ -97,6 +104,7 @@ RAPPELS :
 - Verifie le nombre de tests avant/apres (doit etre >= identique)
 - Pas de refactoring opportuniste hors scope
 EOF
+  touch "$PIPELINE_MARKER"
   exit 0
 fi
 
@@ -129,6 +137,7 @@ RAPPELS :
 - Pas de merge sans review
 - Securite : valider les inputs, echapper les outputs
 EOF
+  touch "$PIPELINE_MARKER"
   exit 0
 fi
 
@@ -144,4 +153,5 @@ Cette demande peut impliquer du code. Evalue si un pipeline est necessaire :
 3. Verifie la securite de tes modifications
 4. Le hook Stop verifiera que les preuves sont satisfaites si /jeyant a ete utilise
 EOF
+touch "$PIPELINE_MARKER"
 exit 0
