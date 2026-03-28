@@ -1,0 +1,31 @@
+graph TB
+    subgraph GLOBAL["<b>Global ~/.claude/ — installed once</b>"]
+        H1["enforce-pipeline.sh<br/><i>THE GUARDIAN</i>"]
+        H2["session-context.sh<br/><i>Memory loader</i>"]
+        H3["verify-completion.sh<br/><i>THE LOCK</i>"]
+        H4["auto-quality.sh<br/><i>Format + lint + scan</i>"]
+        H5["track-changes.sh<br/><i>Change tracker</i>"]
+        SETTINGS["settings.json<br/><i>Hooks config + deny rules</i>"]
+    end
+
+    subgraph PROJECT["<b>Per-project .claude/ — deployed per repo</b>"]
+        A1["agents/security-reviewer.md"]
+        A2["agents/a11y-auditor.md"]
+        A3["agents/perf-analyst.md"]
+        R1["hookify rules<br/><i>secrets, .env, SQL, force push</i>"]
+        CMD["CLAUDE.md<br/><i>Stack, conventions, commands</i>"]
+    end
+
+    subgraph MEMORY["<b>Project memory docs/ — grows over time</b>"]
+        M1["state/<br/><i>backlog, session log</i>"]
+        M2["conventions/<br/><i>learned patterns</i>"]
+        M3["decisions/<br/><i>ADRs</i>"]
+        M4["architecture/<br/><i>module map</i>"]
+    end
+
+    SETTINGS --> H1 & H2 & H3 & H4 & H5
+    H2 -->|"loads at start"| MEMORY
+    H3 -->|"forces save at end"| MEMORY
+
+    style H1 fill:#1a5276,color:#fff
+    style H3 fill:#7b241c,color:#fff

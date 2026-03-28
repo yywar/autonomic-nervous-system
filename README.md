@@ -29,43 +29,9 @@ Hooks are not suggestions. **Hooks are deterministic.** They run every time, on 
 
 The Autonomic Nervous System deploys 6 layers of enforcement around Claude Code:
 
-```mermaid
-flowchart TD
-    U["**YOU**<br/>Write your request naturally"]
-    U --> L1
-
-    subgraph BEFORE["Before AI works"]
-        L1["**Layer 1 — CLAUDE.md**<br/>Baseline: conventions, stack, security rules"]
-        L2["**Layer 2 — SessionStart**<br/>Reloads project memory, backlog, decisions"]
-        L3["**Layer 3 — THE GUARDIAN**<br/>Classifies prompt: fix / feature / refactor / question<br/>Injects mandatory pipeline"]
-        L1 --> L2 --> L3
-    end
-
-    L3 --> AI["**AI WORKS**<br/>With forced quality pipeline:<br/>TDD, debugging, proofs, review"]
-
-    subgraph DURING["While AI works"]
-        L4["**Layer 4 — PreToolUse**<br/>Blocks: secrets, .env,<br/>force push, SQL injection"]
-        L5["**Layer 5 — PostToolUse**<br/>Auto-format, lint,<br/>security scan, tracking"]
-    end
-
-    AI --> L4
-    AI --> L5
-
-    AI --> L6
-
-    subgraph AFTER["Before session ends"]
-        L6["**Layer 6 — THE LOCK**<br/>Blocks if: tests missing,<br/>proofs unsatisfied,<br/>capitalization skipped"]
-    end
-
-    L6 -->|"All gates pass"| DONE["**Session complete**<br/>Memory saved for next session"]
-    L6 -->|"Gate fails"| AI
-
-    style L3 fill:#1a5276,stroke:#2980b9,color:#fff
-    style L6 fill:#7b241c,stroke:#c0392b,color:#fff
-    style AI fill:#1e8449,stroke:#27ae60,color:#fff
-    style L4 fill:#784212,stroke:#e67e22,color:#fff
-    style DONE fill:#1a5276,stroke:#2980b9,color:#fff
-```
+<p align="center">
+  <img src="docs/images/architecture.png" alt="6-layer enforcement architecture" width="700"/>
+</p>
 
 ### What each layer does
 
@@ -89,20 +55,9 @@ The Guardian analyzes every prompt and injects the right pipeline:
 | "refactor the auth module" | **REFACTOR** | Challenge (is this justified now?) + zero behavior change rule + before/after test parity |
 | "how does the router work?" | **QUESTION** | Direct answer, no pipeline overhead |
 
-```mermaid
-flowchart LR
-    P["Your prompt"] --> G{"**THE GUARDIAN**<br/>analyzes keywords"}
-    G -->|"fix, bug, crash,<br/>error, debug"| FIX["**FIX pipeline**<br/>Root cause first<br/>TDD: test before fix"]
-    G -->|"add, create, build,<br/>feature, implement"| FEAT["**FEATURE pipeline**<br/>Technical challenge<br/>Full quality + review"]
-    G -->|"refactor, clean,<br/>split, migrate"| REF["**REFACTOR pipeline**<br/>Is it justified?<br/>Zero behavior change"]
-    G -->|"explain, how,<br/>why, show"| Q["**Direct answer**<br/>No pipeline overhead"]
-
-    style FIX fill:#c0392b,color:#fff
-    style FEAT fill:#2980b9,color:#fff
-    style REF fill:#e67e22,color:#fff
-    style Q fill:#27ae60,color:#fff
-    style G fill:#1a5276,color:#fff
-```
+<p align="center">
+  <img src="docs/images/classification.png" alt="Pipeline classification" width="700"/>
+</p>
 
 ### Technical challenge (built-in)
 
@@ -118,30 +73,9 @@ If any answer reveals a problem, the AI flags it before writing a single line of
 
 The system maintains project memory across sessions:
 
-```mermaid
-flowchart LR
-    subgraph SN["**Session N**"]
-        direction TB
-        W["You work"] --> T["Every Edit/Write<br/>is tracked"]
-        T --> S["Stop hook detects<br/>significant changes"]
-        S --> C["Forces capitalization"]
-        C --> D["Writes to:<br/>docs/state/<br/>docs/conventions/<br/>docs/decisions/"]
-    end
-
-    D --> GIT[("**git**<br/>persists")]
-
-    subgraph SN1["**Session N+1**"]
-        direction TB
-        LOAD["SessionStart hook<br/>auto-loads:"] --> MEM["Last session log<br/>Active backlog<br/>Recent ADRs<br/>Conventions<br/>Module map"]
-        MEM --> READY["AI has full context.<br/>No starting from zero."]
-    end
-
-    GIT --> LOAD
-
-    style GIT fill:#1a5276,stroke:#2980b9,color:#fff
-    style C fill:#7b241c,stroke:#c0392b,color:#fff
-    style READY fill:#1e8449,stroke:#27ae60,color:#fff
-```
+<p align="center">
+  <img src="docs/images/memory.png" alt="Automatic memory cycle" width="700"/>
+</p>
 
 No more "starting from zero" on every session.
 
@@ -258,40 +192,9 @@ mv ~/.claude/skills/planification/SKILL.md.disabled ~/.claude/skills/planificati
 
 ## Architecture overview
 
-```mermaid
-graph TB
-    subgraph GLOBAL["**Global (~/.claude/) — installed once**"]
-        H1["enforce-pipeline.sh<br/><i>THE GUARDIAN</i>"]
-        H2["session-context.sh<br/><i>Memory loader</i>"]
-        H3["verify-completion.sh<br/><i>THE LOCK</i>"]
-        H4["auto-quality.sh<br/><i>Format + lint + scan</i>"]
-        H5["track-changes.sh<br/><i>Change tracker</i>"]
-        SETTINGS["settings.json<br/><i>Hooks config + deny rules</i>"]
-    end
-
-    subgraph PROJECT["**Per-project (.claude/) — deployed per repo**"]
-        A1["agents/security-reviewer.md"]
-        A2["agents/a11y-auditor.md"]
-        A3["agents/perf-analyst.md"]
-        R1["hookify rules<br/><i>secrets, .env, SQL, force push</i>"]
-        CMD["CLAUDE.md<br/><i>Stack, conventions, commands</i>"]
-    end
-
-    subgraph MEMORY["**Project memory (docs/) — grows over time**"]
-        M1["state/<br/><i>backlog, session log</i>"]
-        M2["conventions/<br/><i>learned patterns</i>"]
-        M3["decisions/<br/><i>ADRs</i>"]
-        M4["architecture/<br/><i>module map</i>"]
-    end
-
-    SETTINGS --> H1 & H2 & H3 & H4 & H5
-    H2 -->|"loads at start"| MEMORY
-    H3 -->|"forces save at end"| MEMORY
-
-    style H1 fill:#1a5276,color:#fff
-    style H3 fill:#7b241c,color:#fff
-    style MEMORY fill:#1e8449,color:#fff,stroke:#27ae60
-```
+<p align="center">
+  <img src="docs/images/overview.png" alt="Architecture overview" width="700"/>
+</p>
 
 ## Philosophy
 

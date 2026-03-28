@@ -1,0 +1,12 @@
+flowchart LR
+    P["Your prompt"] --> G{"<b>THE GUARDIAN</b><br/>analyzes keywords"}
+    G -->|"fix, bug, crash,<br/>error, debug"| FIX["<b>FIX pipeline</b><br/>Root cause first<br/>TDD: test before fix"]
+    G -->|"add, create, build,<br/>feature, implement"| FEAT["<b>FEATURE pipeline</b><br/>Technical challenge<br/>Full quality + review"]
+    G -->|"refactor, clean,<br/>split, migrate"| REF["<b>REFACTOR pipeline</b><br/>Is it justified?<br/>Zero behavior change"]
+    G -->|"explain, how,<br/>why, show"| Q["<b>Direct answer</b><br/>No pipeline overhead"]
+
+    style FIX fill:#c0392b,color:#fff
+    style FEAT fill:#2980b9,color:#fff
+    style REF fill:#e67e22,color:#fff
+    style Q fill:#27ae60,color:#fff
+    style G fill:#1a5276,color:#fff

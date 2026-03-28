@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph SN["<b>Session N</b>"]
+        direction TB
+        W["You work"] --> T["Every Edit/Write<br/>is tracked"]
+        T --> S["Stop hook detects<br/>significant changes"]
+        S --> C["Forces capitalization"]
+        C --> D["Writes to:<br/>docs/state/<br/>docs/conventions/<br/>docs/decisions/"]
+    end
+
+    D --> GIT[("<b>git</b><br/>persists")]
+
+    subgraph SN1["<b>Session N+1</b>"]
+        direction TB
+        LOAD["SessionStart hook<br/>auto-loads:"] --> MEM["Last session log<br/>Active backlog<br/>Recent ADRs<br/>Conventions<br/>Module map"]
+        MEM --> READY["AI has full context.<br/>No starting from zero."]
+    end
+
+    GIT --> LOAD
+
+    style GIT fill:#1a5276,stroke:#2980b9,color:#fff
+    style C fill:#7b241c,stroke:#c0392b,color:#fff
+    style READY fill:#1e8449,stroke:#27ae60,color:#fff
